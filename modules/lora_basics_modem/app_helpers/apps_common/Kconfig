@@ -1,0 +1,23 @@
+# Copyright (c) 2024 Semtech Corporation - Félix Piédallu
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig LORA_BASICS_MODEM_APPS_COMMON
+    bool "Enable common wrapper for apps"
+    default y
+
+if LORA_BASICS_MODEM_APPS_COMMON
+
+config LORA_BASICS_MODEM_PRINTERS
+    bool "Enable printer helpers"
+    default y if LOG
+    default y if PRINTK
+    default n
+    help
+        Enable this to get acecss to functions that take a lora basics
+        modem enum and return a static string, so it may be printed/logged
+
+module = SMTC_APP
+module-str = smtc_app
+source "subsys/logging/Kconfig.template.log_config"
+
+endif # LORA_BASICS_MODEM_APPS_COMMON

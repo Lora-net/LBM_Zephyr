@@ -1,0 +1,35 @@
+v0.6
+====
+
+LoRa Basics Modem:
+* Fix gpio interrupt behaviour that was not left pending when disabled (Fixes WiFi/GNSS Scanning)
+* Properly configure the "Scanning" LED for GNSS/WiFi scanning
+
+v0.5
+====
+
+Radio drivers:
+* BUSY wait timeout was bumped to 10 minutes to support wifi/GNSS scanning.
+* Update the current shields and add new specific shields for TCXO/Crystal
+
+v0.4
+====
+
+Radio drivers:
+* Add complete support for SX126x
+* Rework drivers Kconfig settings (now only CONFIG_LORA_BASICS_MODEM_DRIVERS is required)
+* Rework device tree LR11xx configuration, add TX power calibration settings
+* Partially support MCU-controlled TCXO (properly configure the transceiver)
+* Support configuration of XTAL trim capacitors
+
+LoRa Basics Modem:
+* Support Class B, Class C, and Multicast
+* Fix FUOTA
+* Fix geolocation build
+* Add a new optional "LBM Main Thread" that offloads LBM outside of the main thread 
+* Coding style fixes
+* Rename samples
+* samples/hw_modem: Fix FUOTA, misc fixes
+* Fix some buggy logging messages
+* Implement crashlog storage
+* samples: Add LCTT certification sample
