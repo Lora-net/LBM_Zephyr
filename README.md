@@ -9,16 +9,16 @@ This is an experimental release of demo projects of LBM on Zephyr, tested on LR1
 
 ## Zephyr module
 
-You can use this module either as your "west manifest project", or include it in 
+You can use this module either as your "west manifest project", or include it in
 another project. In that case you need to add `import: true` to the caller configuration, as this:
 
 ```yaml
   projects:
-    - name: lora_lbm
-      path: modules/lora_lbm
+    - name: lbm_zephyr
+      path: modules/lbm_zephyr
       remote: lora-net
-      repo-path: lora_lbm_zephyr
-      revision: zephyr
+      repo-path: lbm_zephyr
+      revision: main
       import: true
 ```
 
@@ -50,19 +50,10 @@ You need to create an empty directory, let's name it `lbm_zephyr_workspace`, and
 ```bash
 mkdir lbm_zephyr_workspace
 cd lbm_zephyr_workspace
-git clone git@github.com:lora-net-private/SWL2001_Zephyr.git lora_lbm
+git clone git@github.com:lora-net/LBM_Zephyr.git lbm_zephyr
 ```
 
-The `SWL2001_Manifest` repository will be automatically downloaded, you don't need to clone it yourself.
-
-### Configure the SSH command (only needed if external to lora-net-private)
-
-If you need Git to use a custom SSH key to access the private repositories, you can either
-configure it in your `~/.ssh/config` file or specify it in your terminal's environment:
-
-```bash
-export GIT_SSH_COMMAND="/usr/bin/ssh -i <path>/60093279.SWL2001SSHKEYMFAS.key"
-```
+The `SWL2001` repository will be automatically downloaded, you don't need to clone it yourself.
 
 ### Download Zephyr and its modules
 
@@ -70,7 +61,7 @@ Then, initialize West (the build tool):
 Multiple repositories will be automatically downloaded inside the workspace directory.
 
 ```bash
-west init -l lora_lbm
+west init -l lbm_zephyr
 west update
 ```
 
@@ -78,13 +69,13 @@ It will take 3-10 minutes to run depending on your network connection.
 
 You will need to run this step for every project you download.
 
-If major updates to `lora_lbm` are provided, you might need to run `west update` again.
+If major updates to `lbm_zephyr` are provided, you might need to run `west update` again.
 
 ## The samples
 
-Samples are in the `lora_lbm/samples` directory, split in two classes:
+Samples are in the `lbm_zephyr/samples` directory, split in two classes:
 
-* lora_drivers: Samples only using the low level LoRa drivers 
+* lora_drivers: Samples only using the low level LoRa drivers
   * ping_pong : Flash this sample to two boards to see them talk.
   * ping_shell : Same as ping_pong, but manually, using the Zephyr shell ! run `lorademo ping` in one board to ping the other flashed board.
 * lora_basics_modem: Samples leveraging the LBM stack to communicate with LoRaWAN networks.
@@ -97,14 +88,14 @@ Samples are in the `lora_lbm/samples` directory, split in two classes:
 
 ## Build the code
 
-You need to inform Zephyr which board and shield you want to use. Shields are in the `lora_lbm/boards/shields/*` directories as `.overlay` files.
+You need to inform Zephyr which board and shield you want to use. Shields are in the `lbm_zephyr/boards/shields/*` directories as `.overlay` files.
 They describe which transceiver model you are using. For example, `semtech_lr1110mb1xxs`.
 
 Go into a sample's directory, then run:
 
 ```bash
 west build --board nrf52840dk/nrf52840 -- -DSHIELD=semtech_lr1110mb1xxs
-# or 
+# or
 west build --board nucleo_l476rg --build-dir build_nucleo -- -DSHIELD=semtech_lr1110mb1xxs
 ```
 

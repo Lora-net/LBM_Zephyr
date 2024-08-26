@@ -2,13 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 
 manifest:
-
   remotes:
     - name: zephyrproject-rtos
       url-base: https://github.com/zephyrproject-rtos
-
-    - name: lora-net-private
-      url-base: git@github.com:lora-net-private
 
     - name: lora-net
       url-base: https://github.com/lora-net
@@ -21,17 +17,9 @@ manifest:
 
     - name: lora_basics_modem
       path: modules/lib/lora_basics_modem
-      # LoRa-net-private
-      remote: lora-net-private
-      repo-path: SWl2001_manifest
-      revision: zephyr
-      # LoRa-net
-      # remote: lora-net
-      # repo-path: SWL2001
-      # revision: zephyr
-      # revision: zephyr
-
-
+      remote: lora-net
+      repo-path: SWL2001
+      revision: feature/zephyr
 
   self:
     path: application
