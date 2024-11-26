@@ -1,0 +1,13 @@
+boards:
+ - name: isp4520-eu
+   vendor: insightsip
+   socs:
+   - name: nrf52832
+ - name: isp4520-as
+   vendor: insightsip
+   socs:
+   - name: nrf52832
+ - name: isp4520-us
+   vendor: insightsip
+   socs:
+   - name: nrf52832

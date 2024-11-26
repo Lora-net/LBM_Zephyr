@@ -1,0 +1,7 @@
+# nRF52 DK nRF52810 board configuration
+
+# Copyright (c) 2018 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_ISP4520_AS
+	select SOC_NRF52832_QFAA
