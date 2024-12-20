@@ -38,6 +38,10 @@ static void lora_basics_modem_main_thread(void *p1, void *p2, void *p3)
 		if (smtc_modem_is_irq_flag_pending()) {
 			continue;
 		}
+
+#if CONFIG_LORA_BASICS_MODEM_MAIN_THREAD_MAX_SLEEP_MS
+		sleep_time_ms = MIN(sleep_time_ms, CONFIG_LORA_BASICS_MODEM_MAIN_THREAD_MAX_SLEEP_MS);
+#endif
 		LOG_INF("Sleeping for %dms", sleep_time_ms);
 		smtc_modem_hal_interruptible_msleep(K_MSEC(sleep_time_ms));
 	}

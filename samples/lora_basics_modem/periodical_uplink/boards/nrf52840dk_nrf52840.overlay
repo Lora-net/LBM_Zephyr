@@ -25,9 +25,6 @@
 /* Specify which UART is used for communication (as input for the hw modem tester) */
 &uart1 {
     status = "okay";
-
-    compatible = "nordic,nrf-uarte";
-    status = "okay";
     current-speed = <115200>;
 
     pinctrl-0 = <&uart1_default_alt>;

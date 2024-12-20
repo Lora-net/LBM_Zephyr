@@ -37,7 +37,7 @@ LOG_MODULE_DECLARE(hw_modem, 3);
  * --- PRIVATE CONSTANTS -------------------------------------------------------
  */
 
-#define HW_MODEM_RX_BUFF_MAX_LENGTH 259
+#define HW_MODEM_RX_BUFF_MAX_LENGTH 261
 
 /*
  * -----------------------------------------------------------------------------

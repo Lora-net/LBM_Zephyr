@@ -7,12 +7,14 @@
 #include <smtc_modem_hal.h>
 #include <smtc_modem_hal_init.h>
 
+#include <stdint.h>
 #include <zephyr/kernel.h>
 #include <zephyr/random/random.h>
 #include <zephyr/settings/settings.h>
 #include <zephyr/sys/__assert.h>
 #include <zephyr/sys/reboot.h>
 #include <zephyr/fs/nvs.h>
+#include <zephyr/drivers/flash.h>
 #include <zephyr/storage/flash_map.h>
 
 #include <lora_lbm_transceiver.h>
@@ -149,7 +151,6 @@ static void prv_smtc_modem_hal_timer_handler(struct k_timer *timer)
 
 	if (prv_modem_irq_enabled) {
 		prv_smtc_modem_hal_timer_callback(prv_smtc_modem_hal_timer_context);
-		smtc_modem_hal_wake_up();
 	} else {
 		prv_modem_irq_pending_while_disabled = true;
 	}
@@ -234,7 +235,9 @@ bool smtc_modem_hal_crashlog_get_status(void)
 	return available;
 }
 
-#else
+#endif
+
+#ifdef CONFIG_LORA_BASICS_MODEM_PROVIDED_STORAGE_IMPL
 
 // FIXME: That whole storage bit should be revamped to something more generic,
 // that would remove the whole read-erase-write logics and leverage the zephyr flash stack.
@@ -311,6 +314,10 @@ void smtc_modem_hal_context_store(const modem_context_type_t ctx_type, uint32_t 
 {
 	int rc;
 	uint32_t real_offset;
+	uint32_t real_size;
+
+	// shitty workaround because some 4-bytes writes will come while flash supports only 8
+	real_size = size + 8 - (size % 8);
 
 	flash_init();
 	real_offset = priv_hal_context_address(ctx_type, offset);
@@ -319,13 +326,16 @@ void smtc_modem_hal_context_store(const modem_context_type_t ctx_type, uint32_t 
 	if (real_offset < ADDR_STORE_AND_FORWARD_CONTEXT_OFFSET) {
 		memset(page_buffer, 0, 4096);
 		flash_area_read(context_flash_area, 0, page_buffer, 4096);
-		memset(page_buffer + real_offset, 0, size);
-		memcpy(page_buffer + real_offset, buffer, size);
+		memset(page_buffer + real_offset, 0, real_size);
+		memcpy(page_buffer + real_offset, buffer, real_size);
 		flash_area_erase(context_flash_area, 0, 4096);
 		rc = flash_area_write(context_flash_area, 0, page_buffer, 4096);
 	} else {
 		// LOG_INF("%s: offset %d, real_offset=%d", __FUNCTION__, offset, real_offset);
-		rc = flash_area_write(context_flash_area, real_offset, buffer, size);
+		memset(page_buffer, 0, real_size);
+		// yes, size, not real_size
+		memcpy(page_buffer, buffer, size);
+		rc = flash_area_write(context_flash_area, real_offset, page_buffer, real_size);
 	}
 
 	return;
@@ -345,22 +355,30 @@ void smtc_modem_hal_context_flash_pages_erase(const modem_context_type_t ctx_typ
 	return;
 }
 
+uint16_t smtc_modem_hal_flash_get_page_size()
+{
+	const struct device *flash_device;
+	struct flash_pages_info info;
 
-#define NUM_PAGES 6
+	flash_init();
+	flash_device = flash_area_get_device(context_flash_area);
+	flash_get_page_info_by_offs(flash_device, ADDR_STORE_AND_FORWARD_CONTEXT_OFFSET, &info);
+	return info.size;
+}
 
 uint16_t smtc_modem_hal_store_and_forward_get_number_of_pages()
 {
-	return NUM_PAGES;
-	// return ADDR_STORE_AND_FORWARD_CONTEXT_OFFSET smtc_modem_hal_flash_get_page_size();
-}
+	uint16_t page_size;
+	size_t flash_size;
+	uint16_t pages_possible;
 
-uint16_t smtc_modem_hal_flash_get_page_size()
-{
-	return 4096;
-	// flash_init();
-	// return flash_area_align(context_flash_area);
-}
+	page_size = smtc_modem_hal_flash_get_page_size();
+	flash_size = context_flash_area->fa_size;
 
+	pages_possible = (flash_size - 8192) / page_size; // 8192B are taken by stuff before store_and_forward
+
+	return pages_possible;
+}
 
 void smtc_modem_hal_crashlog_store(const uint8_t *crashlog, uint8_t crash_string_length)
 {
@@ -479,7 +497,6 @@ void prv_transceiver_event_cb(const struct device *dev)
 	if (prv_modem_irq_enabled) {
 		/* Due to the way the transceiver driver is implemented, this is called from the system workq. */
 		prv_smtc_modem_hal_radio_irq_callback(prv_smtc_modem_hal_radio_irq_context);
-		smtc_modem_hal_wake_up();
 	} else {
 		prv_radio_irq_pending_while_disabled = true;
 	}
@@ -505,7 +522,8 @@ void smtc_modem_hal_irq_reset_radio_irq(void)
 
 void smtc_modem_hal_radio_irq_clear_pending(void)
 {
-	/* Unimplemented as this is a corner case without consequences and Zephyr does not provide such API. */
+	prv_modem_irq_pending_while_disabled = false;
+	prv_radio_irq_pending_while_disabled = false;
 }
 
 void smtc_modem_hal_start_radio_tcxo(void)
@@ -681,5 +699,5 @@ uint8_t smtc_modem_hal_get_fw_delete_status_for_fuota(uint32_t fw_to_delete_vers
 
 void smtc_modem_hal_user_lbm_irq(void)
 {
-	// Do nothing in case implementation is bare metal
+	smtc_modem_hal_wake_up();
 }

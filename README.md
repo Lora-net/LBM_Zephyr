@@ -1,7 +1,7 @@
 # LoRa Basics Modem on Zephyr
 
 This repository aims to make LoRa Basics Modem available in Zephyr. It wraps the existing
-SWL2001 repository from Semtech.
+SWL2001 repository from Semtech, at the version `v4.8.0`.
 
 At term, this repository might be merged into the upstream Zephyr project.
 
@@ -14,10 +14,10 @@ another project. In that case you need to add `import: true` to the caller confi
 
 ```yaml
   projects:
-    - name: lbm_zephyr
-      path: modules/lbm_zephyr
+    - name: LBM_Zephyr
+      path: modules/LBM_Zephyr
       remote: lora-net
-      repo-path: lbm_zephyr
+      repo-path: LBM_Zephyr
       revision: main
       import: true
 ```
@@ -50,7 +50,7 @@ You need to create an empty directory, let's name it `lbm_zephyr_workspace`, and
 ```bash
 mkdir lbm_zephyr_workspace
 cd lbm_zephyr_workspace
-git clone git@github.com:lora-net/LBM_Zephyr.git lbm_zephyr
+git clone git@github.com:lora-net/LBM_Zephyr.git
 ```
 
 The `SWL2001` repository will be automatically downloaded, you don't need to clone it yourself.
@@ -61,7 +61,7 @@ Then, initialize West (the build tool):
 Multiple repositories will be automatically downloaded inside the workspace directory.
 
 ```bash
-west init -l lbm_zephyr
+west init -l LBM_Zephyr
 west update
 ```
 
@@ -69,11 +69,11 @@ It will take 3-10 minutes to run depending on your network connection.
 
 You will need to run this step for every project you download.
 
-If major updates to `lbm_zephyr` are provided, you might need to run `west update` again.
+If major updates to `LBM_Zephyr` are provided, you might need to run `west update` again.
 
 ## The samples
 
-Samples are in the `lbm_zephyr/samples` directory, split in two classes:
+Samples are in the `LBM_Zephyr/samples` directory, split in two classes:
 
 * lora_drivers: Samples only using the low level LoRa drivers
   * ping_pong : Flash this sample to two boards to see them talk.
@@ -88,7 +88,7 @@ Samples are in the `lbm_zephyr/samples` directory, split in two classes:
 
 ## Build the code
 
-You need to inform Zephyr which board and shield you want to use. Shields are in the `lbm_zephyr/boards/shields/*` directories as `.overlay` files.
+You need to inform Zephyr which board and shield you want to use. Shields are in the `LBM_Zephyr/boards/shields/*` directories as `.overlay` files.
 They describe which transceiver model you are using. For example, `semtech_lr1110mb1xxs`.
 
 Go into a sample's directory, then run:
